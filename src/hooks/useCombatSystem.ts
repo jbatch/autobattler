@@ -1,27 +1,8 @@
+import { CombatState, Unit } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 
-// Core types
-export interface Unit {
-  id: string;
-  name: string;
-  maxHealth: number;
-  currentHealth: number;
-  damage: number;
-  cooldown: number;
-  currentCooldown: number;
-  position: "frontline" | "backline" | "support";
-}
-
-interface CombatState {
-  playerTeam: Unit[];
-  enemyTeam: Unit[];
-  turn: number;
-  isActive: boolean;
-  logs: string[];
-}
-
 // Initial state setup remains the same as before
-const initialPlayerTeam: Unit[] = [
+const DEFAULT_PLAYER_TEAM: Unit[] = [
   {
     id: "p1",
     name: "Knight",
@@ -67,9 +48,9 @@ const initialEnemyTeam: Unit[] = [
   },
 ];
 
-export const useCombatSystem = () => {
+export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
   const [combatState, setCombatState] = useState<CombatState>({
-    playerTeam: initialPlayerTeam,
+    playerTeam: initialPlayerTeam ?? DEFAULT_PLAYER_TEAM,
     enemyTeam: initialEnemyTeam,
     turn: 0,
     isActive: false,

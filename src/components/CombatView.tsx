@@ -3,11 +3,29 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
-import { type Unit } from "../hooks/useCombatSystem";
+import { Unit } from "@/types";
+import { useEffect } from "react";
 
-const CombatView = () => {
-  const { combatState, startCombat } = useCombatSystem();
+interface CombatViewProps {
+  initialPlayerTeam: Unit[];
+  onCombatComplete: (victory: boolean) => void;
+}
+
+const CombatView = ({
+  initialPlayerTeam,
+  onCombatComplete,
+}: CombatViewProps) => {
+  const { combatState, startCombat } = useCombatSystem(initialPlayerTeam);
   const { playerTeam, enemyTeam, logs, isActive } = combatState;
+
+  useEffect(() => {
+    if (!isActive && logs.length > 0) {
+      // Check the last log message to determine victory
+      const lastLog = logs[logs.length - 1];
+      const victory = lastLog.includes("Player Team Wins");
+      onCombatComplete(victory);
+    }
+  }, [isActive, logs, onCombatComplete]);
 
   const renderUnit = (unit: Unit) => {
     // Calculate progress as a repeating animation
@@ -46,7 +64,9 @@ const CombatView = () => {
         <div className="w-full bg-gray-200 h-2 rounded-full mt-1 overflow-hidden">
           <motion.div
             className="bg-blue-500 h-full origin-left"
-            animate={isActive ? progressAnimation : ""}
+            animate={
+              isActive && unit.currentHealth > 0 ? progressAnimation : ""
+            }
           />
         </div>
 

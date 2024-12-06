@@ -1,10 +1,10 @@
 import "./App.css";
-import CombatView from "./components/CombatView";
+import GameView from "./components/GameView";
 
 function App() {
   return (
     <>
-      <CombatView />
+      <GameView />
     </>
   );
 }
