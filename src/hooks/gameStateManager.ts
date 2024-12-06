@@ -280,13 +280,19 @@ export const completeNode = (
   const newNodes = gameState.map.nodes.map((node) => {
     if (node.id === nodeId) {
       // Mark current node as completed
-      return { ...node, completed: true };
+      return { ...node, completed: true, available: false };
     }
-    if (node.connections.includes(nodeId)) {
-      // Make connected nodes available
-      return { ...node, available: true };
-    }
-    return node;
+
+    // If this node has a connection from the completed node,
+    // make it available. Otherwise, make it unavailable.
+    const isConnectedFromCompletedNode = gameState.map.nodes
+      .find((n) => n.id === nodeId)
+      ?.connections.includes(node.id);
+
+    return {
+      ...node,
+      available: isConnectedFromCompletedNode ?? false,
+    };
   });
 
   return {

@@ -1,4 +1,3 @@
-import React from "react";
 import { motion, Point } from "framer-motion";
 import { Shield, Store, Gem, Star, HelpCircle } from "lucide-react";
 import type { MapNode, GameState } from "../types";

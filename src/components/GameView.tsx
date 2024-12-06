@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import MapView from "./MapView";
@@ -8,15 +8,24 @@ import {
   completeNode,
   moveToNode,
 } from "../hooks/gameStateManager";
-import type { GameState, MapNode } from "../types";
+import type { GameState, MapNode, Unit } from "../types";
+import TeamSelectionView from "./TeamSelectionView";
 
-type GameScreen = "map" | "combat" | "reward";
+type GameScreen = "team-select" | "map" | "combat" | "reward";
 
 const GameView = () => {
   const [gameState, setGameState] = useState<GameState>(
     createInitialGameState()
   );
-  const [currentScreen, setCurrentScreen] = useState<GameScreen>("map");
+  const [currentScreen, setCurrentScreen] = useState<GameScreen>("team-select");
+
+  const handleTeamSelect = (selectedTeam: Unit[]) => {
+    setGameState((prev) => ({
+      ...prev,
+      playerTeam: selectedTeam,
+    }));
+    setCurrentScreen("map");
+  };
 
   const handleNodeClick = (nodeId: string) => {
     const node = gameState.map.nodes.find((n) => n.id === nodeId);
@@ -44,6 +53,10 @@ const GameView = () => {
 
   return (
     <div className="container mx-auto p-4">
+      {currentScreen === "team-select" && (
+        <TeamSelectionView onTeamSelect={handleTeamSelect} />
+      )}
+
       {currentScreen === "map" && (
         <div className="space-y-4">
           <Card className="p-4">
