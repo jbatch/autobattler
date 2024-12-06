@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, Sword, Crosshair } from "lucide-react";
 import type { Unit } from "@/types";
 
 // Starting team configurations
@@ -21,9 +20,6 @@ const STARTING_TEAMS: {
         maxHealth: 100,
         currentHealth: 100,
         damage: 20,
-        cooldown: 3,
-        currentCooldown: 3,
-        position: "frontline",
       },
       {
         id: "archer",
@@ -31,9 +27,6 @@ const STARTING_TEAMS: {
         maxHealth: 70,
         currentHealth: 70,
         damage: 30,
-        cooldown: 4,
-        currentCooldown: 4,
-        position: "backline",
       },
       {
         id: "cleric",
@@ -41,9 +34,6 @@ const STARTING_TEAMS: {
         maxHealth: 60,
         currentHealth: 60,
         damage: 15,
-        cooldown: 2,
-        currentCooldown: 2,
-        position: "support",
       },
     ],
   },
@@ -58,9 +48,6 @@ const STARTING_TEAMS: {
         maxHealth: 80,
         currentHealth: 80,
         damage: 35,
-        cooldown: 3,
-        currentCooldown: 3,
-        position: "frontline",
       },
       {
         id: "assassin",
@@ -68,9 +55,6 @@ const STARTING_TEAMS: {
         maxHealth: 60,
         currentHealth: 60,
         damage: 40,
-        cooldown: 4,
-        currentCooldown: 4,
-        position: "backline",
       },
       {
         id: "mage",
@@ -78,9 +62,6 @@ const STARTING_TEAMS: {
         maxHealth: 50,
         currentHealth: 50,
         damage: 45,
-        cooldown: 5,
-        currentCooldown: 5,
-        position: "support",
       },
     ],
   },
@@ -95,9 +76,6 @@ const STARTING_TEAMS: {
         maxHealth: 120,
         currentHealth: 120,
         damage: 15,
-        cooldown: 3,
-        currentCooldown: 3,
-        position: "frontline",
       },
       {
         id: "paladin",
@@ -105,9 +83,6 @@ const STARTING_TEAMS: {
         maxHealth: 100,
         currentHealth: 100,
         damage: 20,
-        cooldown: 4,
-        currentCooldown: 4,
-        position: "frontline",
       },
       {
         id: "priest",
@@ -115,9 +90,6 @@ const STARTING_TEAMS: {
         maxHealth: 70,
         currentHealth: 70,
         damage: 10,
-        cooldown: 2,
-        currentCooldown: 2,
-        position: "support",
       },
     ],
   },
@@ -128,29 +100,15 @@ interface StartingTeamSelectionProps {
 }
 
 const TeamSelectionView = ({ onTeamSelect }: StartingTeamSelectionProps) => {
-  const getPositionIcon = (position: string) => {
-    switch (position) {
-      case "frontline":
-        return <Shield className="w-4 h-4" />;
-      case "backline":
-        return <Crosshair className="w-4 h-4" />;
-      case "support":
-        return <Sword className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
-
   const renderUnitInfo = (unit: Unit) => (
     <div
       key={unit.id}
       className="flex items-center gap-2 p-2 bg-gray-50 rounded"
     >
-      <div className="text-blue-500">{getPositionIcon(unit.position)}</div>
       <div className="flex-1">
         <div className="font-medium">{unit.name}</div>
         <div className="text-sm text-gray-600">
-          HP: {unit.maxHealth} | DMG: {unit.damage} | SPD: {unit.cooldown}s
+          HP: {unit.maxHealth} | DMG: {unit.damage}
         </div>
       </div>
     </div>

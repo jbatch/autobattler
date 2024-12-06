@@ -1,7 +1,6 @@
 import { CombatState, Unit } from "@/types";
 import { useCallback, useEffect, useState } from "react";
 
-// Initial state setup remains the same as before
 const DEFAULT_PLAYER_TEAM: Unit[] = [
   {
     id: "p1",
@@ -9,9 +8,6 @@ const DEFAULT_PLAYER_TEAM: Unit[] = [
     maxHealth: 100,
     currentHealth: 100,
     damage: 20,
-    cooldown: 3,
-    currentCooldown: 3,
-    position: "frontline",
   },
   {
     id: "p2",
@@ -19,9 +15,6 @@ const DEFAULT_PLAYER_TEAM: Unit[] = [
     maxHealth: 70,
     currentHealth: 70,
     damage: 30,
-    cooldown: 4,
-    currentCooldown: 4,
-    position: "backline",
   },
 ];
 
@@ -32,9 +25,6 @@ const initialEnemyTeam: Unit[] = [
     maxHealth: 60,
     currentHealth: 60,
     damage: 15,
-    cooldown: 2,
-    currentCooldown: 2,
-    position: "frontline",
   },
   {
     id: "e2",
@@ -42,9 +32,6 @@ const initialEnemyTeam: Unit[] = [
     maxHealth: 120,
     currentHealth: 120,
     damage: 25,
-    cooldown: 4,
-    currentCooldown: 4,
-    position: "frontline",
   },
 ];
 
@@ -57,94 +44,82 @@ export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
     logs: [],
   });
 
-  // Combat logic remains the same...
-  const processAttack = (
-    attacker: Unit,
-    defenders: Unit[]
-  ): [Unit[], string] => {
-    if (defenders.length === 0) return [[], ""];
+  // Get the front unit of a team
+  const getFrontUnit = (team: Unit[]): Unit | null => {
+    return team.find((unit) => unit.currentHealth > 0) || null;
+  };
 
-    const target = defenders.find((unit) => unit.currentHealth > 0);
-    if (!target) return [defenders, ""];
+  // Process a single round of combat between front units
+  const processCombatRound = (
+    playerUnit: Unit,
+    enemyUnit: Unit
+  ): [Unit, Unit, string[]] => {
+    const logs: string[] = [];
 
-    const newDefenders = defenders.map((unit) => {
-      if (unit.id === target.id) {
-        return {
-          ...unit,
-          currentHealth: Math.max(0, unit.currentHealth - attacker.damage),
-        };
-      }
-      return unit;
-    });
+    // Both units attack simultaneously
+    const updatedPlayerUnit = {
+      ...playerUnit,
+      currentHealth: Math.max(0, playerUnit.currentHealth - enemyUnit.damage),
+    };
 
-    const log = `${attacker.name} attacks ${target.name} for ${attacker.damage} damage!`;
-    return [newDefenders, log];
+    const updatedEnemyUnit = {
+      ...enemyUnit,
+      currentHealth: Math.max(0, enemyUnit.currentHealth - playerUnit.damage),
+    };
+
+    // Generate combat logs
+    logs.push(`${playerUnit.name} and ${enemyUnit.name} clash!`);
+    logs.push(
+      `${playerUnit.name} deals ${playerUnit.damage} damage to ${enemyUnit.name}`
+    );
+    logs.push(
+      `${enemyUnit.name} deals ${enemyUnit.damage} damage to ${playerUnit.name}`
+    );
+
+    if (updatedPlayerUnit.currentHealth <= 0) {
+      logs.push(`${playerUnit.name} is defeated!`);
+    }
+    if (updatedEnemyUnit.currentHealth <= 0) {
+      logs.push(`${enemyUnit.name} is defeated!`);
+    }
+
+    return [updatedPlayerUnit, updatedEnemyUnit, logs];
   };
 
   const processTurn = useCallback(() => {
     setCombatState((prevState) => {
-      const newLogs: string[] = [];
-      let newPlayerTeam = [...prevState.playerTeam];
-      let newEnemyTeam = [...prevState.enemyTeam];
+      const playerFront = getFrontUnit(prevState.playerTeam);
+      const enemyFront = getFrontUnit(prevState.enemyTeam);
 
-      // Process player team
-      newPlayerTeam = newPlayerTeam.map((unit) => {
-        if (unit.currentHealth <= 0) return unit;
-
-        if (unit.currentCooldown === 1) {
-          const [updatedEnemies, log] = processAttack(unit, newEnemyTeam);
-          newEnemyTeam = updatedEnemies;
-          if (log) newLogs.push(log);
-          return { ...unit, currentCooldown: unit.cooldown };
-        }
-
-        return {
-          ...unit,
-          currentCooldown: Math.max(0, unit.currentCooldown - 1),
-        };
-      });
-
-      // Process enemy team
-      newEnemyTeam = newEnemyTeam.map((unit) => {
-        if (unit.currentHealth <= 0) return unit;
-
-        if (unit.currentCooldown === 1) {
-          const [updatedPlayers, log] = processAttack(unit, newPlayerTeam);
-          newPlayerTeam = updatedPlayers;
-          if (log) newLogs.push(log);
-          return { ...unit, currentCooldown: unit.cooldown };
-        }
-
-        return {
-          ...unit,
-          currentCooldown: Math.max(0, unit.currentCooldown - 1),
-        };
-      });
-
-      // Check win/loss conditions
-      const playerAlive = newPlayerTeam.some((unit) => unit.currentHealth > 0);
-      const enemyAlive = newEnemyTeam.some((unit) => unit.currentHealth > 0);
-
-      if (!playerAlive || !enemyAlive) {
-        const resultLog = !playerAlive
-          ? "Battle Over - Enemy Team Wins!"
-          : "Battle Over - Player Team Wins!";
-        newLogs.push(resultLog);
+      // If either team has no units left, combat is over
+      if (!playerFront || !enemyFront) {
+        const winner = playerFront ? "Player Team" : "Enemy Team";
         return {
           ...prevState,
           isActive: false,
-          logs: [...prevState.logs, ...newLogs],
-          playerTeam: newPlayerTeam,
-          enemyTeam: newEnemyTeam,
+          logs: [...prevState.logs, `Battle Over - ${winner} Wins!`],
         };
       }
+
+      // Process combat between front units
+      const [updatedPlayerUnit, updatedEnemyUnit, combatLogs] =
+        processCombatRound(playerFront, enemyFront);
+
+      // Update the units in their respective teams
+      const newPlayerTeam = prevState.playerTeam.map((unit) =>
+        unit.id === updatedPlayerUnit.id ? updatedPlayerUnit : unit
+      );
+
+      const newEnemyTeam = prevState.enemyTeam.map((unit) =>
+        unit.id === updatedEnemyUnit.id ? updatedEnemyUnit : unit
+      );
 
       return {
         ...prevState,
         playerTeam: newPlayerTeam,
         enemyTeam: newEnemyTeam,
         turn: prevState.turn + 1,
-        logs: [...prevState.logs, ...newLogs],
+        logs: [...prevState.logs, ...combatLogs],
       };
     });
   }, []);
@@ -161,7 +136,7 @@ export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
     let intervalId: number;
 
     if (combatState.isActive) {
-      intervalId = window.setInterval(processTurn, 1000);
+      intervalId = window.setInterval(processTurn, 1500); // Slightly longer delay to make combat more readable
     }
 
     return () => {

@@ -4,9 +4,6 @@ export interface Unit {
   maxHealth: number;
   currentHealth: number;
   damage: number;
-  cooldown: number;
-  currentCooldown: number;
-  position: "frontline" | "backline" | "support";
 }
 
 export interface CombatState {

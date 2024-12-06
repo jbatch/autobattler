@@ -152,11 +152,23 @@ const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
             otherNodes
           );
 
+          const targetAvailable = node.completed && targetNode.available;
+          const targetCompleted = node.completed && targetNode.completed;
+          const getConnectionStroke = () => {
+            if (targetAvailable) {
+              return nodeColors.available.stroke;
+            }
+            if (targetCompleted) {
+              return nodeColors.completed.stroke;
+            }
+            return "#e0e0e0";
+          };
+
           return (
             <motion.path
               key={`${node.id}-${targetId}`}
               d={pathD}
-              stroke={node.completed ? nodeColors.completed.stroke : "#e0e0e0"}
+              stroke={getConnectionStroke()}
               strokeWidth={3}
               fill="none"
               initial={{ pathLength: 0 }}

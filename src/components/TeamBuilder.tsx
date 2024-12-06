@@ -2,15 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Shield, Sword, Crosshair } from "lucide-react";
 import { Unit } from "@/types";
-
-// Available positions for units
-const POSITIONS = {
-  frontline: { icon: Shield, label: "Frontline" },
-  backline: { icon: Crosshair, label: "Backline" },
-  support: { icon: Sword, label: "Support" },
-} as const;
 
 // Sample roster of available units
 const AVAILABLE_UNITS: Unit[] = [
@@ -20,9 +12,6 @@ const AVAILABLE_UNITS: Unit[] = [
     maxHealth: 100,
     currentHealth: 100,
     damage: 20,
-    cooldown: 3,
-    currentCooldown: 3,
-    position: "frontline",
   },
   {
     id: "archer",
@@ -30,9 +19,6 @@ const AVAILABLE_UNITS: Unit[] = [
     maxHealth: 70,
     currentHealth: 70,
     damage: 30,
-    cooldown: 4,
-    currentCooldown: 4,
-    position: "backline",
   },
   {
     id: "cleric",
@@ -40,9 +26,6 @@ const AVAILABLE_UNITS: Unit[] = [
     maxHealth: 60,
     currentHealth: 60,
     damage: 15,
-    cooldown: 2,
-    currentCooldown: 2,
-    position: "support",
   },
   {
     id: "warrior",
@@ -50,9 +33,6 @@ const AVAILABLE_UNITS: Unit[] = [
     maxHealth: 90,
     currentHealth: 90,
     damage: 25,
-    cooldown: 3,
-    currentCooldown: 3,
-    position: "frontline",
   },
   {
     id: "mage",
@@ -60,9 +40,6 @@ const AVAILABLE_UNITS: Unit[] = [
     maxHealth: 50,
     currentHealth: 50,
     damage: 40,
-    cooldown: 5,
-    currentCooldown: 5,
-    position: "backline",
   },
 ];
 
@@ -74,9 +51,6 @@ const ENEMY_TEAM: Unit[] = [
     maxHealth: 120,
     currentHealth: 120,
     damage: 25,
-    cooldown: 3,
-    currentCooldown: 3,
-    position: "frontline",
   },
   {
     id: "e2",
@@ -84,9 +58,6 @@ const ENEMY_TEAM: Unit[] = [
     maxHealth: 60,
     currentHealth: 60,
     damage: 35,
-    cooldown: 4,
-    currentCooldown: 4,
-    position: "backline",
   },
 ];
 
@@ -113,8 +84,6 @@ const TeamBuilder = ({ onStartBattle }: TeamBuilderProps) => {
   };
 
   const renderUnitCard = (unit: Unit, isSelected: boolean) => {
-    const PositionIcon = POSITIONS[unit.position].icon;
-
     return (
       <Card
         key={unit.id}
@@ -124,13 +93,11 @@ const TeamBuilder = ({ onStartBattle }: TeamBuilderProps) => {
         onClick={() => handleUnitClick(unit)}
       >
         <div className="flex items-center gap-2 mb-2">
-          <PositionIcon className="w-4 h-4" />
           <h3 className="font-bold">{unit.name}</h3>
         </div>
         <div className="space-y-1 text-sm">
           <div>HP: {unit.maxHealth}</div>
           <div>DMG: {unit.damage}</div>
-          <div>Speed: {unit.cooldown}s</div>
         </div>
       </Card>
     );
