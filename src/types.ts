@@ -1,14 +1,37 @@
-export interface Unit {
-  id: string;
-  name: string;
+// Core unit stats and properties
+export interface UnitStats {
   maxHealth: number;
-  currentHealth: number;
   damage: number;
 }
 
+// Full unit template definition
+export interface UnitTemplate {
+  id: string;
+  name: string;
+  description: string;
+  rarity: "common" | "uncommon" | "rare" | "epic" | "legendary";
+  baseStats: UnitStats;
+  // Stats gained per level
+  statsPerLevel: Partial<UnitStats>;
+  shopData?: {
+    cost: number;
+    weight: number; // Chance to appear in shop
+  };
+  minFloor?: number; // When unit starts appearing
+}
+
+// Runtime unit instance (what appears in combat)
+export interface CombatUnit extends UnitStats {
+  id: string;
+  templateId: string;
+  name: string;
+  level: number;
+  currentHealth: number;
+}
+
 export interface CombatState {
-  playerTeam: Unit[];
-  enemyTeam: Unit[];
+  playerTeam: CombatUnit[];
+  enemyTeam: CombatUnit[];
   turn: number;
   isActive: boolean;
   logs: string[];
@@ -40,6 +63,6 @@ export interface GameState {
   map: GameMap;
   currentNodeId: string | null;
   level: number;
-  playerTeam: Unit[];
+  playerTeam: CombatUnit[];
   maxTeamSize: number;
 }

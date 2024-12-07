@@ -7,126 +7,95 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Unit } from "@/types";
+import { CombatUnit } from "@/types";
 import { Store, X } from "lucide-react";
+import { unitTemplates, createUnit } from "@/data/unit-data";
 
 interface ShopViewProps {
   gold: number;
-  playerTeam: Unit[];
+  playerTeam: CombatUnit[];
   maxTeamSize: number;
+  level: number;
   onClose: () => void;
-  onBuyUnit: (unit: Unit) => void;
+  onBuyUnit: (unit: CombatUnit) => void;
   onDismissUnit: (unitId: string) => void;
 }
-
-const SHOP_UNITS: Unit[] = [
-  {
-    id: "shop-knight",
-    name: "Knight",
-    maxHealth: 100,
-    currentHealth: 100,
-    damage: 20,
-  },
-  {
-    id: "shop-archer",
-    name: "Archer",
-    maxHealth: 70,
-    currentHealth: 70,
-    damage: 30,
-  },
-  {
-    id: "shop-mage",
-    name: "Mage",
-    maxHealth: 50,
-    currentHealth: 50,
-    damage: 40,
-  },
-  {
-    id: "shop-cleric",
-    name: "Cleric",
-    maxHealth: 60,
-    currentHealth: 60,
-    damage: 15,
-  },
-  {
-    id: "shop-berserker",
-    name: "Berserker",
-    maxHealth: 80,
-    currentHealth: 80,
-    damage: 35,
-  },
-];
-
-const UNIT_COSTS = {
-  Knight: 100,
-  Archer: 120,
-  Mage: 150,
-  Cleric: 130,
-  Berserker: 140,
-};
 
 const ShopView = ({
   gold,
   playerTeam,
   maxTeamSize,
+  level,
   onClose,
   onBuyUnit,
   onDismissUnit,
 }: ShopViewProps) => {
   const canAddUnit = playerTeam.length < maxTeamSize;
 
-  const renderUnitCard = (
-    unit: Unit,
-    cost: number,
-    isShopUnit: boolean = false
-  ) => (
-    <Card key={unit.id} className="relative">
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <span>{unit.name}</span>
-          {isShopUnit ? (
-            <span className="text-yellow-600">{cost} Gold</span>
-          ) : (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-red-500 hover:text-red-700"
-              onClick={() => onDismissUnit(unit.id)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span>HP:</span>
-            <span>{unit.maxHealth}</span>
-          </div>
-          <div className="flex justify-between">
-            <span>DMG:</span>
-            <span>{unit.damage}</span>
-          </div>
-        </div>
-      </CardContent>
-      {isShopUnit && (
-        <CardFooter>
-          <Button
-            className="w-full"
-            disabled={!canAddUnit || gold < cost}
-            onClick={() => onBuyUnit(unit)}
-          >
-            {!canAddUnit
-              ? "Team Full"
-              : gold < cost
-              ? "Not Enough Gold"
-              : "Buy Unit"}
-          </Button>
-        </CardFooter>
-      )}
-    </Card>
+  // Filter available units based on floor level
+  const availableUnits = Object.values(unitTemplates).filter(
+    (template) => !template.minFloor || template.minFloor <= level
   );
+
+  const renderUnitCard = (
+    unit: CombatUnit | null,
+    shopTemplate?: (typeof unitTemplates)[keyof typeof unitTemplates]
+  ) => {
+    if (!unit && !shopTemplate) return null;
+
+    const isShopUnit = !!shopTemplate;
+    const displayUnit = unit || createUnit(shopTemplate!.id);
+    const cost = shopTemplate?.shopData?.cost || 0;
+
+    return (
+      <Card key={displayUnit.id} className="relative">
+        <CardHeader>
+          <CardTitle className="flex justify-between items-center">
+            <span>{displayUnit.name}</span>
+            {isShopUnit ? (
+              <span className="text-yellow-600">{cost} Gold</span>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-red-500 hover:text-red-700"
+                onClick={() => onDismissUnit(displayUnit.id)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>HP:</span>
+              <span>{displayUnit.maxHealth}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>DMG:</span>
+              <span>{displayUnit.damage}</span>
+            </div>
+          </div>
+        </CardContent>
+        {isShopUnit && (
+          <CardFooter>
+            <Button
+              className="w-full"
+              disabled={!canAddUnit || gold < cost}
+              onClick={() => onBuyUnit(displayUnit)}
+            >
+              {!canAddUnit
+                ? "Team Full"
+                : gold < cost
+                ? "Not Enough Gold"
+                : "Buy Unit"}
+            </Button>
+          </CardFooter>
+        )}
+      </Card>
+    );
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -152,12 +121,8 @@ const ShopView = ({
             <h3 className="text-lg font-semibold mb-4">Available Units</h3>
             <ScrollArea className="h-[500px] pr-4">
               <div className="grid gap-4">
-                {SHOP_UNITS.map((unit) =>
-                  renderUnitCard(
-                    unit,
-                    UNIT_COSTS[unit.name as keyof typeof UNIT_COSTS],
-                    true
-                  )
+                {availableUnits.map((template) =>
+                  renderUnitCard(null, template)
                 )}
               </div>
             </ScrollArea>
@@ -172,7 +137,7 @@ const ShopView = ({
               {playerTeam.length === 0 ? (
                 <p className="text-gray-500 italic">No units in team</p>
               ) : (
-                playerTeam.map((unit) => renderUnitCard(unit, 0))
+                playerTeam.map((unit) => renderUnitCard(unit))
               )}
             </div>
           </div>

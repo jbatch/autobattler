@@ -10,7 +10,7 @@ interface MapViewProps {
 const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
   // Constants for node styling
   const NODE_RADIUS = 24;
-  const NODE_PADDING = 30;
+  const NODE_PADDING = 1;
   const ICON_SIZE = 20;
 
   const x = useMotionValue(0);

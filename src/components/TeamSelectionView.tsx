@@ -1,106 +1,41 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Unit } from "@/types";
+import type { CombatUnit } from "@/types";
+import { createUnit } from "@/data/unit-data";
 
 // Starting team configurations
 const STARTING_TEAMS: {
   id: string;
   name: string;
   description: string;
-  units: Unit[];
+  units: CombatUnit[];
 }[] = [
   {
     id: "balanced",
     name: "Balanced Team",
     description: "A well-rounded team with mixed abilities",
-    units: [
-      {
-        id: "knight",
-        name: "Knight",
-        maxHealth: 100,
-        currentHealth: 100,
-        damage: 20,
-      },
-      {
-        id: "archer",
-        name: "Archer",
-        maxHealth: 70,
-        currentHealth: 70,
-        damage: 30,
-      },
-      {
-        id: "cleric",
-        name: "Cleric",
-        maxHealth: 60,
-        currentHealth: 60,
-        damage: 15,
-      },
-    ],
+    units: [createUnit("knight")],
   },
   {
     id: "aggressive",
     name: "Aggressive Team",
     description: "High damage output but less survivability",
-    units: [
-      {
-        id: "berserker",
-        name: "Berserker",
-        maxHealth: 80,
-        currentHealth: 80,
-        damage: 35,
-      },
-      {
-        id: "assassin",
-        name: "Assassin",
-        maxHealth: 60,
-        currentHealth: 60,
-        damage: 40,
-      },
-      {
-        id: "mage",
-        name: "Mage",
-        maxHealth: 50,
-        currentHealth: 50,
-        damage: 45,
-      },
-    ],
+    units: [createUnit("berserker")],
   },
   {
     id: "defensive",
     name: "Defensive Team",
     description: "High survivability but slower damage output",
-    units: [
-      {
-        id: "guardian",
-        name: "Guardian",
-        maxHealth: 120,
-        currentHealth: 120,
-        damage: 15,
-      },
-      {
-        id: "paladin",
-        name: "Paladin",
-        maxHealth: 100,
-        currentHealth: 100,
-        damage: 20,
-      },
-      {
-        id: "priest",
-        name: "Priest",
-        maxHealth: 70,
-        currentHealth: 70,
-        damage: 10,
-      },
-    ],
+    units: [createUnit("archer")],
   },
 ];
 
 interface StartingTeamSelectionProps {
-  onTeamSelect: (team: Unit[]) => void;
+  onTeamSelect: (team: CombatUnit[]) => void;
 }
 
 const TeamSelectionView = ({ onTeamSelect }: StartingTeamSelectionProps) => {
-  const renderUnitInfo = (unit: Unit) => (
+  const renderUnitInfo = (unit: CombatUnit) => (
     <div
       key={unit.id}
       className="flex items-center gap-2 p-2 bg-gray-50 rounded"

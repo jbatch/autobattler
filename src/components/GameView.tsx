@@ -8,7 +8,7 @@ import {
   completeNode,
   moveToNode,
 } from "../hooks/gameStateManager";
-import type { GameState, MapNode, Unit } from "../types";
+import type { GameState, MapNode, CombatUnit } from "../types";
 import TeamSelectionView from "./TeamSelectionView";
 import ShopView from "./ShopView";
 import TreasureView from "./TreasureView";
@@ -28,7 +28,7 @@ const GameView = () => {
   );
   const [currentScreen, setCurrentScreen] = useState<GameScreen>("team-select");
 
-  const handleTeamSelect = (selectedTeam: Unit[]) => {
+  const handleTeamSelect = (selectedTeam: CombatUnit[]) => {
     setGameState((prev) => ({
       ...prev,
       playerTeam: selectedTeam,
@@ -90,7 +90,7 @@ const GameView = () => {
     setCurrentScreen("map");
   };
 
-  const handleBuyUnit = (unit: Unit) => {
+  const handleBuyUnit = (unit: CombatUnit) => {
     const unitCost = {
       Knight: 100,
       Archer: 120,
@@ -131,7 +131,7 @@ const GameView = () => {
     setCurrentScreen("map");
   };
 
-  const handleTreasureComplete = (upgradedTeam?: Unit[]) => {
+  const handleTreasureComplete = (upgradedTeam?: CombatUnit[]) => {
     // If no upgraded team, they chose gold
     if (!upgradedTeam) {
       setGameState((prev) => ({
@@ -193,6 +193,7 @@ const GameView = () => {
           </div>
           <CombatView
             initialPlayerTeam={gameState.playerTeam}
+            floor={gameState.level}
             isBossFight={currentNode.type === "boss"}
             onCombatComplete={handleCombatComplete}
           />
@@ -204,6 +205,7 @@ const GameView = () => {
           gold={gameState.gold}
           playerTeam={gameState.playerTeam}
           maxTeamSize={gameState.maxTeamSize}
+          level={gameState.level}
           onClose={handleLeaveShop}
           onBuyUnit={handleBuyUnit}
           onDismissUnit={handleDismissUnit}

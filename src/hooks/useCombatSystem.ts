@@ -1,73 +1,31 @@
-import { CombatState, Unit } from "@/types";
+import { CombatState, CombatUnit } from "@/types";
 import { useCallback, useEffect, useState } from "react";
-
-const DEFAULT_PLAYER_TEAM: Unit[] = [
-  {
-    id: "p1",
-    name: "Knight",
-    maxHealth: 100,
-    currentHealth: 100,
-    damage: 20,
-  },
-  {
-    id: "p2",
-    name: "Archer",
-    maxHealth: 70,
-    currentHealth: 70,
-    damage: 30,
-  },
-];
-
-// Regular enemy team
-const DEFAULT_ENEMY_TEAM: Unit[] = [
-  {
-    id: "e1",
-    name: "Goblin",
-    maxHealth: 60,
-    currentHealth: 60,
-    damage: 15,
-  },
-  {
-    id: "e2",
-    name: "Orc",
-    maxHealth: 120,
-    currentHealth: 120,
-    damage: 25,
-  },
-];
-
-// Boss enemy team
-const BOSS_ENEMY_TEAM: Unit[] = [
-  {
-    id: "boss-1",
-    name: "Orc King",
-    maxHealth: 300,
-    currentHealth: 300,
-    damage: 25,
-  },
-];
+import { createBossEnemy, getRandomEnemies } from "@/data/enemy-data";
 
 export const useCombatSystem = (
-  initialPlayerTeam?: Unit[],
+  playerTeam: CombatUnit[],
+  floor: number,
   isBossFight: boolean = false
 ) => {
   const [combatState, setCombatState] = useState<CombatState>({
-    playerTeam: initialPlayerTeam ?? DEFAULT_PLAYER_TEAM,
-    enemyTeam: isBossFight ? BOSS_ENEMY_TEAM : DEFAULT_ENEMY_TEAM,
+    playerTeam: playerTeam,
+    enemyTeam: isBossFight
+      ? [createBossEnemy(floor)]
+      : getRandomEnemies(floor, Math.floor(Math.random() * 2) + 1),
     turn: 0,
     isActive: false,
     logs: [],
   });
 
   // Rest of the combat system remains the same
-  const getFrontUnit = (team: Unit[]): Unit | null => {
+  const getFrontUnit = (team: CombatUnit[]): CombatUnit | null => {
     return team.find((unit) => unit.currentHealth > 0) || null;
   };
 
   const processCombatRound = (
-    playerUnit: Unit,
-    enemyUnit: Unit
-  ): [Unit, Unit, string[]] => {
+    playerUnit: CombatUnit,
+    enemyUnit: CombatUnit
+  ): [CombatUnit, CombatUnit, string[]] => {
     const logs: string[] = [];
 
     // Both units attack simultaneously
@@ -142,7 +100,7 @@ export const useCombatSystem = (
     setCombatState((prev) => ({
       ...prev,
       isActive: true,
-      logs: [isBossFight ? "The Orc King approaches..." : "Battle Started!"],
+      logs: [isBossFight ? "The Boss approaches..." : "Battle Started!"],
     }));
   };
 

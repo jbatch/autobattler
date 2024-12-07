@@ -3,23 +3,26 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
-import { Unit } from "@/types";
+import { CombatUnit } from "@/types";
 import { useEffect, useState } from "react";
 import CombatVictoryDialog from "./CombatVictoryDialog";
 
 interface CombatViewProps {
-  initialPlayerTeam: Unit[];
+  floor: number;
+  initialPlayerTeam: CombatUnit[];
   isBossFight: boolean;
   onCombatComplete: (victory: boolean) => void;
 }
 
 const CombatView = ({
+  floor,
   initialPlayerTeam,
   isBossFight,
   onCombatComplete,
 }: CombatViewProps) => {
   const { combatState, startCombat } = useCombatSystem(
     initialPlayerTeam,
+    floor,
     isBossFight
   );
   const { playerTeam, enemyTeam, logs, isActive } = combatState;
@@ -43,7 +46,7 @@ const CombatView = ({
     onCombatComplete(true);
   };
 
-  const renderUnit = (unit: Unit) => {
+  const renderUnit = (unit: CombatUnit) => {
     return (
       <Card key={unit.id} className="p-4 m-2">
         <h3 className="font-bold">{unit.name}</h3>

@@ -2,21 +2,21 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Gem, Coins, ArrowUp } from "lucide-react";
-import type { Unit } from "@/types";
+import type { CombatUnit } from "@/types";
+import { unitTemplates } from "@/data/unit-data";
 
 interface TreasureViewProps {
-  playerTeam: Unit[];
-  onComplete: (upgradedTeam?: Unit[]) => void;
+  playerTeam: CombatUnit[];
+  onComplete: (upgradedTeam?: CombatUnit[]) => void;
 }
 
 const TreasureView = ({ playerTeam, onComplete }: TreasureViewProps) => {
+  console.log();
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [showingUpgradeChoice, setShowingUpgradeChoice] = useState(false);
 
   // Constants for rewards
   const GOLD_REWARD = 200;
-  const HEALTH_BOOST = 20;
-  const DAMAGE_BOOST = 5;
 
   const handleGoldChoice = () => {
     onComplete(); // No team changes, just gold will be added in GameView
@@ -26,17 +26,29 @@ const TreasureView = ({ playerTeam, onComplete }: TreasureViewProps) => {
     setShowingUpgradeChoice(true);
   };
 
+  const getUpgradedUnit = (id: string) => {
+    const unit = playerTeam.find((u) => u.id === id)!;
+    return {
+      ...unit,
+      level: unit.level + 1,
+      maxHealth:
+        unit.maxHealth +
+        (unitTemplates[unit.templateId].statsPerLevel.maxHealth ?? 0),
+      currentHealth:
+        unit.currentHealth +
+        (unitTemplates[unit.templateId].statsPerLevel.maxHealth ?? 0),
+      damage:
+        unit.damage +
+        (unitTemplates[unit.templateId].statsPerLevel.damage ?? 0),
+    } as CombatUnit;
+  };
+
   const handleUnitUpgrade = () => {
     if (!selectedUnitId) return;
 
     const upgradedTeam = playerTeam.map((unit) => {
       if (unit.id === selectedUnitId) {
-        return {
-          ...unit,
-          maxHealth: unit.maxHealth + HEALTH_BOOST,
-          currentHealth: unit.currentHealth + HEALTH_BOOST,
-          damage: unit.damage + DAMAGE_BOOST,
-        };
+        return getUpgradedUnit(selectedUnitId)!;
       }
       return unit;
     });
@@ -56,28 +68,31 @@ const TreasureView = ({ playerTeam, onComplete }: TreasureViewProps) => {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
-              {playerTeam.map((unit) => (
-                <Card
-                  key={unit.id}
-                  className={`p-4 cursor-pointer transition-all ${
-                    selectedUnitId === unit.id
-                      ? "ring-2 ring-blue-500"
-                      : "hover:bg-gray-50"
-                  }`}
-                  onClick={() => setSelectedUnitId(unit.id)}
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="font-bold">{unit.name}</h3>
-                      <div className="text-sm text-gray-600">
-                        HP: {unit.maxHealth} → {unit.maxHealth + HEALTH_BOOST}
-                        <br />
-                        DMG: {unit.damage} → {unit.damage + DAMAGE_BOOST}
+              {playerTeam.map((unit) => {
+                const previewUpgrade = getUpgradedUnit(unit.id);
+                return (
+                  <Card
+                    key={unit.id}
+                    className={`p-4 cursor-pointer transition-all ${
+                      selectedUnitId === unit.id
+                        ? "ring-2 ring-blue-500"
+                        : "hover:bg-gray-50"
+                    }`}
+                    onClick={() => setSelectedUnitId(unit.id)}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-bold">{unit.name}</h3>
+                        <div className="text-sm text-gray-600">
+                          HP: {unit.maxHealth} → {previewUpgrade?.maxHealth}
+                          <br />
+                          DMG: {unit.damage} → {previewUpgrade?.damage}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
 
               <Button
                 className="mt-4"
@@ -129,8 +144,8 @@ const TreasureView = ({ playerTeam, onComplete }: TreasureViewProps) => {
                 <div>
                   <h3 className="font-bold text-lg mb-2">Upgrade Unit</h3>
                   <p className="text-gray-600">
-                    +{HEALTH_BOOST} HP
-                    <br />+{DAMAGE_BOOST} DMG
+                    HP++
+                    <br /> DMG++
                   </p>
                 </div>
                 <Button className="w-full">Choose Unit</Button>
