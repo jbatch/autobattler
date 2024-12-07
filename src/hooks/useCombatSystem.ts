@@ -18,7 +18,8 @@ const DEFAULT_PLAYER_TEAM: Unit[] = [
   },
 ];
 
-const initialEnemyTeam: Unit[] = [
+// Regular enemy team
+const DEFAULT_ENEMY_TEAM: Unit[] = [
   {
     id: "e1",
     name: "Goblin",
@@ -35,21 +36,34 @@ const initialEnemyTeam: Unit[] = [
   },
 ];
 
-export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
+// Boss enemy team
+const BOSS_ENEMY_TEAM: Unit[] = [
+  {
+    id: "boss-1",
+    name: "Orc King",
+    maxHealth: 300,
+    currentHealth: 300,
+    damage: 25,
+  },
+];
+
+export const useCombatSystem = (
+  initialPlayerTeam?: Unit[],
+  isBossFight: boolean = false
+) => {
   const [combatState, setCombatState] = useState<CombatState>({
     playerTeam: initialPlayerTeam ?? DEFAULT_PLAYER_TEAM,
-    enemyTeam: initialEnemyTeam,
+    enemyTeam: isBossFight ? BOSS_ENEMY_TEAM : DEFAULT_ENEMY_TEAM,
     turn: 0,
     isActive: false,
     logs: [],
   });
 
-  // Get the front unit of a team
+  // Rest of the combat system remains the same
   const getFrontUnit = (team: Unit[]): Unit | null => {
     return team.find((unit) => unit.currentHealth > 0) || null;
   };
 
-  // Process a single round of combat between front units
   const processCombatRound = (
     playerUnit: Unit,
     enemyUnit: Unit
@@ -128,7 +142,7 @@ export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
     setCombatState((prev) => ({
       ...prev,
       isActive: true,
-      logs: ["Battle Started!"],
+      logs: [isBossFight ? "The Orc King approaches..." : "Battle Started!"],
     }));
   };
 
@@ -136,7 +150,7 @@ export const useCombatSystem = (initialPlayerTeam?: Unit[]) => {
     let intervalId: number;
 
     if (combatState.isActive) {
-      intervalId = window.setInterval(processTurn, 1500); // Slightly longer delay to make combat more readable
+      intervalId = window.setInterval(processTurn, 1500);
     }
 
     return () => {

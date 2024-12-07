@@ -46,6 +46,7 @@ const GameView = () => {
 
     switch (node.type) {
       case "combat":
+      case "boss":
         setCurrentScreen("combat");
         break;
       case "merchant":
@@ -154,6 +155,9 @@ const GameView = () => {
     setCurrentScreen("map");
   };
 
+  const currentNode = gameState.map.nodes.find(
+    (n) => n.id === gameState.currentNodeId
+  )!;
   return (
     <div className="container mx-auto p-4">
       {currentScreen === "team-select" && (
@@ -174,13 +178,7 @@ const GameView = () => {
           {gameState.currentNodeId && (
             <Card className="p-4">
               <h2 className="text-xl font-bold mb-2">Current Location</h2>
-              <NodeInfo
-                node={
-                  gameState.map.nodes.find(
-                    (n) => n.id === gameState.currentNodeId
-                  )!
-                }
-              />
+              <NodeInfo node={currentNode!} />
             </Card>
           )}
         </div>
@@ -195,6 +193,7 @@ const GameView = () => {
           </div>
           <CombatView
             initialPlayerTeam={gameState.playerTeam}
+            isBossFight={currentNode.type === "boss"}
             onCombatComplete={handleCombatComplete}
           />
         </div>

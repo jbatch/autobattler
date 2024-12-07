@@ -8,7 +8,6 @@ interface MapViewProps {
 }
 
 const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
-  console.log(gameState);
   // Constants for node styling
   const NODE_RADIUS = 24;
   const NODE_PADDING = 30;

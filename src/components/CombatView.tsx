@@ -9,14 +9,19 @@ import CombatVictoryDialog from "./CombatVictoryDialog";
 
 interface CombatViewProps {
   initialPlayerTeam: Unit[];
+  isBossFight: boolean;
   onCombatComplete: (victory: boolean) => void;
 }
 
 const CombatView = ({
   initialPlayerTeam,
+  isBossFight,
   onCombatComplete,
 }: CombatViewProps) => {
-  const { combatState, startCombat } = useCombatSystem(initialPlayerTeam);
+  const { combatState, startCombat } = useCombatSystem(
+    initialPlayerTeam,
+    isBossFight
+  );
   const { playerTeam, enemyTeam, logs, isActive } = combatState;
   const [showVictoryDialog, setShowVictoryDialog] = useState(false);
 
