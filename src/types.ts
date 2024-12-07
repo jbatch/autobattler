@@ -41,4 +41,5 @@ export interface GameState {
   currentNodeId: string | null;
   level: number;
   playerTeam: Unit[];
+  maxTeamSize: number;
 }

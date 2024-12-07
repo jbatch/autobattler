@@ -17,6 +17,7 @@ export const createInitialGameState = (): GameState => ({
   currentNodeId: null,
   level: 1,
   playerTeam: [],
+  maxTeamSize: 3,
 });
 
 interface Point {

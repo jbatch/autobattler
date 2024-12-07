@@ -1,4 +1,4 @@
-import { motion, Point } from "framer-motion";
+import { motion, Point, useMotionValue } from "framer-motion";
 import { Shield, Store, Gem, Star, HelpCircle } from "lucide-react";
 import type { MapNode, GameState } from "../types";
 
@@ -8,10 +8,13 @@ interface MapViewProps {
 }
 
 const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
+  console.log(gameState);
   // Constants for node styling
   const NODE_RADIUS = 24;
-  const NODE_PADDING = 20;
+  const NODE_PADDING = 30;
   const ICON_SIZE = 20;
+
+  const x = useMotionValue(0);
 
   // Icons for different node types
   const NodeIcons = {
@@ -152,7 +155,8 @@ const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
             otherNodes
           );
 
-          const targetAvailable = node.completed && targetNode.available;
+          const isCurrent = gameState.currentNodeId === node.id;
+          const targetAvailable = isCurrent && targetNode.available;
           const targetCompleted = node.completed && targetNode.completed;
           const getConnectionStroke = () => {
             if (targetAvailable) {
@@ -255,25 +259,32 @@ const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
   };
 
   return (
-    <div className="w-full h-full min-h-[600px] bg-gray-50 rounded-lg p-4">
-      <svg
-        viewBox="0 0 800 600"
+    <div className="w-full h-full min-h-[600px] bg-gray-50 rounded-lg p-4 cursor-grab active:cursor-grabbing overflow-hidden">
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: -400, right: 400 }}
+        style={{ x }}
         className="w-full h-full"
-        style={{ overflow: "visible" }}
       >
-        <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
+        <svg
+          viewBox="0 0 800 600"
+          className="w-full h-full"
+          style={{ overflow: "visible" }}
+        >
+          <defs>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
 
-        {renderConnections()}
-        {gameState.map.nodes.map(renderNode)}
-      </svg>
+          {renderConnections()}
+          {gameState.map.nodes.map(renderNode)}
+        </svg>
+      </motion.div>
     </div>
   );
 };
