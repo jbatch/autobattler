@@ -1,5 +1,5 @@
 import { motion, Point, useMotionValue } from "framer-motion";
-import { Shield, Store, Gem, Star, HelpCircle } from "lucide-react";
+import { Shield, Store, Gem, Star, HelpCircle, Footprints } from "lucide-react";
 import type { MapNode, GameState } from "../types";
 
 interface MapViewProps {
@@ -10,10 +10,10 @@ interface MapViewProps {
 const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
   // Constants for node styling
   const NODE_RADIUS = 24;
-  const NODE_PADDING = 1;
+  const NODE_PADDING = 4;
   const ICON_SIZE = 20;
 
-  const x = useMotionValue(0);
+  const x = useMotionValue(100);
 
   // Icons for different node types
   const NodeIcons = {
@@ -22,6 +22,7 @@ const MapView = ({ gameState, onNodeClick }: MapViewProps) => {
     treasure: Gem,
     event: HelpCircle,
     boss: Star,
+    victory: Footprints,
   };
 
   // Colors for different node states

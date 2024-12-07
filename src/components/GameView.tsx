@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import MapView from "./MapView";
 import CombatView from "./CombatView";
@@ -7,12 +7,14 @@ import {
   createInitialGameState,
   completeNode,
   moveToNode,
+  advanceToNextFloor,
 } from "../hooks/gameStateManager";
 import type { GameState, MapNode, CombatUnit } from "../types";
 import TeamSelectionView from "./TeamSelectionView";
 import ShopView from "./ShopView";
 import TreasureView from "./TreasureView";
 import EventView from "./EventView";
+import { Trophy } from "lucide-react";
 
 type GameScreen =
   | "team-select"
@@ -20,7 +22,8 @@ type GameScreen =
   | "combat"
   | "treasure"
   | "shop"
-  | "event";
+  | "event"
+  | "victory";
 
 const GameView = () => {
   const [gameState, setGameState] = useState<GameState>(
@@ -57,6 +60,9 @@ const GameView = () => {
         break;
       case "event":
         setCurrentScreen("event");
+        break;
+      case "victory":
+        setCurrentScreen("victory");
         break;
       // TODO Handle other node types here
     }
@@ -159,7 +165,7 @@ const GameView = () => {
     (n) => n.id === gameState.currentNodeId
   )!;
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 max-w-6xl">
       {currentScreen === "team-select" && (
         <TeamSelectionView onTeamSelect={handleTeamSelect} />
       )}
@@ -222,6 +228,15 @@ const GameView = () => {
       {currentScreen === "event" && (
         <EventView gold={gameState.gold} onComplete={handleEventComplete} />
       )}
+
+      {currentScreen === "victory" && (
+        <VictoryView
+          onComplete={() => {
+            setGameState((prevState) => advanceToNextFloor(prevState));
+            setCurrentScreen("map");
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -234,6 +249,7 @@ const NodeInfo = ({ node }: { node: MapNode }) => {
     treasure: "Treasure Room",
     event: "Mystery Event",
     boss: "Boss Battle",
+    victory: "Next Floor",
   };
 
   return (
@@ -251,6 +267,31 @@ const NodeInfo = ({ node }: { node: MapNode }) => {
           This area has been cleared!
         </p>
       )}
+    </div>
+  );
+};
+
+const VictoryView = ({ onComplete }: { onComplete: () => void }) => {
+  return (
+    <div className="container mx-auto p-4 max-w-2xl">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Trophy className="h-6 w-6 text-yellow-500" />
+            Floor Completed!
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center space-y-4">
+            <p>
+              You have conquered this floor! Ready to face the next challenge?
+            </p>
+            <Button onClick={onComplete} className="w-48">
+              Proceed to Next Floor
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

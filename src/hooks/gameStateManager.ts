@@ -18,6 +18,7 @@ export const createInitialGameState = (): GameState => ({
   level: 1,
   playerTeam: [],
   maxTeamSize: 3,
+  currentFloor: 1,
 });
 
 interface Point {
@@ -39,48 +40,99 @@ const generateMap = (level: number): GameMap => {
 
     const layerNodes: MapNode[] = [];
 
-    for (let i = 0; i < numNodesInLayer; i++) {
-      const node: MapNode = {
+    // If this is the last layer, add a single victory node after all boss nodes
+    if (layer === NUM_LAYERS - 1) {
+      // Add boss nodes
+      for (let i = 0; i < numNodesInLayer; i++) {
+        const node: MapNode = {
+          id: `node-${nodeId++}`,
+          type: "boss",
+          position: {
+            x: layer * LAYER_SPACING,
+            y: 0,
+          },
+          connections: [],
+          completed: false,
+          available: false,
+        };
+        layerNodes.push(node);
+      }
+
+      // Add a single victory node slightly to the right of the boss nodes
+      const victoryNode: MapNode = {
         id: `node-${nodeId++}`,
-        type: layer === NUM_LAYERS - 1 ? "boss" : getRandomNodeType(),
+        type: "victory",
         position: {
-          x: layer * LAYER_SPACING,
-          y: 0,
+          x: (layer + 0.5) * LAYER_SPACING,
+          y: MAP_HEIGHT / 2,
         },
         connections: [],
         completed: false,
-        available: layer === 0,
+        available: false,
       };
-      layerNodes.push(node);
+      layerNodes.push(victoryNode);
+    } else {
+      // Generate normal nodes as before
+      for (let i = 0; i < numNodesInLayer; i++) {
+        const node: MapNode = {
+          id: `node-${nodeId++}`,
+          type: getRandomNodeType(),
+          position: {
+            x: layer * LAYER_SPACING,
+            y: 0,
+          },
+          connections: [],
+          completed: false,
+          available: layer === 0,
+        };
+        layerNodes.push(node);
+      }
     }
 
     // Position nodes vertically as before...
     const spacing = MAP_HEIGHT / (numNodesInLayer + 1);
     layerNodes.forEach((node, index) => {
-      node.position.y = spacing * (index + 1);
-      const randomOffset = (Math.random() - 0.5) * spacing * 0.5;
-      node.position.y = Math.max(
-        MIN_NODE_DISTANCE,
-        Math.min(MAP_HEIGHT - MIN_NODE_DISTANCE, node.position.y + randomOffset)
-      );
+      if (node.type !== "victory") {
+        node.position.y = spacing * (index + 1);
+        const randomOffset = (Math.random() - 0.5) * spacing * 0.5;
+        node.position.y = Math.max(
+          MIN_NODE_DISTANCE,
+          Math.min(
+            MAP_HEIGHT - MIN_NODE_DISTANCE,
+            node.position.y + randomOffset
+          )
+        );
+      }
     });
 
     layers.push(layerNodes);
     nodes.push(...layerNodes);
   }
 
-  // Generate initial connections as before...
+  const victoryNode = nodes.find((node) => node.type === "victory");
+  const bossNodes = nodes.filter((node) => node.type === "boss");
+
+  if (victoryNode) {
+    bossNodes.forEach((bossNode) => {
+      bossNode.connections.push(victoryNode.id);
+    });
+  }
+
+  // Generate initial connections.
   for (let layerIndex = 0; layerIndex < layers.length - 1; layerIndex++) {
     const currentLayer = layers[layerIndex];
 
     currentLayer.forEach((node) => {
       const numConnections = Math.random() < 0.7 ? 2 : 1;
       const nextLayer = layers[layerIndex + 1];
-      const possibleTargets = [...nextLayer];
+      let possibleTargets = [...nextLayer];
 
       if (layerIndex < layers.length - 2 && Math.random() < 0.3) {
         possibleTargets.push(...layers[layerIndex + 2]);
       }
+
+      // Don't connect normal nodes to victory node
+      possibleTargets = possibleTargets.filter((l) => l.type !== "victory");
 
       possibleTargets.sort((a, b) => {
         const distA = Math.abs(a.position.y - node.position.y);
@@ -224,7 +276,9 @@ const generateMap = (level: number): GameMap => {
     nodes,
     currentLevel: level,
     startNodeId: layers[0][0].id,
-    endNodeIds: layers[layers.length - 1].map((node) => node.id),
+    endNodeIds: nodes
+      .filter((node) => node.type === "victory")
+      .map((node) => node.id),
   };
 };
 
@@ -304,6 +358,15 @@ export const completeNode = (
       nodes: newNodes,
     },
     currentNodeId: nodeId,
+  };
+};
+
+export const advanceToNextFloor = (gameState: GameState): GameState => {
+  return {
+    ...gameState,
+    currentFloor: gameState.currentFloor + 1,
+    map: generateMap(gameState.currentFloor + 1),
+    currentNodeId: null,
   };
 };
 

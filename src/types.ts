@@ -37,7 +37,13 @@ export interface CombatState {
   logs: string[];
 }
 
-export type NodeType = "combat" | "merchant" | "treasure" | "event" | "boss";
+export type NodeType =
+  | "combat"
+  | "merchant"
+  | "treasure"
+  | "event"
+  | "boss"
+  | "victory";
 
 export interface MapNode {
   id: string;
@@ -65,4 +71,5 @@ export interface GameState {
   level: number;
   playerTeam: CombatUnit[];
   maxTeamSize: number;
+  currentFloor: number;
 }
