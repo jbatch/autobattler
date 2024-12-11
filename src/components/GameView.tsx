@@ -9,7 +9,7 @@ import {
   moveToNode,
   advanceToNextFloor,
 } from "../hooks/gameStateManager";
-import type { GameState, MapNode, CombatUnit } from "../types";
+import type { GameState, CombatUnit } from "../types";
 import TeamSelectionView from "./TeamSelectionView";
 import ShopView from "./ShopView";
 import TreasureView from "./TreasureView";
@@ -179,14 +179,6 @@ const GameView = () => {
             </div>
             <MapView gameState={gameState} onNodeClick={handleNodeClick} />
           </Card>
-
-          {/* Current Node Info */}
-          {gameState.currentNodeId && (
-            <Card className="p-4">
-              <h2 className="text-xl font-bold mb-2">Current Location</h2>
-              <NodeInfo node={currentNode!} />
-            </Card>
-          )}
         </div>
       )}
 
@@ -236,36 +228,6 @@ const GameView = () => {
             setCurrentScreen("map");
           }}
         />
-      )}
-    </div>
-  );
-};
-
-// Helper component to display node information
-const NodeInfo = ({ node }: { node: MapNode }) => {
-  const nodeTypeDisplays = {
-    combat: "Combat Encounter",
-    merchant: "Merchant",
-    treasure: "Treasure Room",
-    event: "Mystery Event",
-    boss: "Boss Battle",
-    victory: "Next Floor",
-  };
-
-  return (
-    <div>
-      <p className="text-lg">{nodeTypeDisplays[node.type]}</p>
-      {node.type === "combat" && !node.completed && (
-        <div className="mt-2">
-          <p className="text-sm text-gray-600">
-            Prepare your team for battle! Click the node to begin combat.
-          </p>
-        </div>
-      )}
-      {node.completed && (
-        <p className="text-sm text-green-600 mt-2">
-          This area has been cleared!
-        </p>
       )}
     </div>
   );

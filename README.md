@@ -1,50 +1,75 @@
-# React + TypeScript + Vite
+# Auto-Battler Roguelike
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A proof-of-concept browser game that combines elements of Super Auto Pets' auto-battling mechanics with Slay the Spire's roguelike progression. Built with React and focused on clean UI-based gameplay rather than complex graphics.
 
-Currently, two official plugins are available:
+## Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project explores creating an accessible browser game where players build a team of units and navigate through a branching map of encounters. Combat is fully automated, with strategy coming from team composition and resource management rather than direct control.
 
-## Expanding the ESLint configuration
+## Key Features
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Combat System
 
-- Configure the top-level `parserOptions` property like this:
+- Automated battle system where units fight based on position
+- Real-time deterministic combat visualization with health bars
+- Detailed battle log showing all actions
+- Boss encounters with enhanced enemy units
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Team Building
+
+- Multiple unit types with different stats
+- Team size management and positioning
+- Unit upgrading and dismissal mechanics
+- Shop system for recruiting new units
+
+### Adventure Map
+
+- Node-based progression system
+- Multiple node types:
+  - Combat encounters
+  - Merchant shops
+  - Treasure rooms
+  - Random events
+  - Boss battles
+- Branching paths with multiple possible routes
+- Visual node connections and availability tracking
+
+### Economy
+
+- Gold management system
+- Risk/reward decisions in events
+- Unit purchasing and selling
+- Treasure rewards
+
+## Technical Implementation
+
+### Core Technologies
+
+- React for UI components
+- Framer Motion for animations
+- Tailwind CSS for styling
+- shadcn/ui for component library
+
+## Getting Started
+
+1. Install dependencies:
+
+```bash
+npm install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+2. Start the development server:
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+npm run dev
 ```
+
+## Future Enhancements
+
+- Additional unit types and abilities
+- More varied event types
+- Equipment system
+- Meta-progression between runs
+- Daily challenges
+- Run history tracking
+- Advanced team synergies
